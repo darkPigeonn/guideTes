@@ -16,6 +16,7 @@ const props = defineProps({
 })
 // Reference to audio file
 const alertSound = new Audio('/assets/pindah.mp3')
+const finishSound = new Audio('/assets/selesai.mp3')
 
 const time = ref(0)
 const running = ref(false)
@@ -41,6 +42,7 @@ const startStop = (event) => {
       } else {
         clearInterval(timer)
         clearInterval(alertInterval)
+        finishSound.play()
         running.value = false
       }
     }, 10)
