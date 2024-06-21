@@ -21,7 +21,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import Stopwatch from '~/components/Stopwatch.vue'
+import Stopwatch from '~/components/Stopwatch1.vue'
 
 const duration = ref(0)
 const call = ref(0)
