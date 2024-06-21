@@ -1,5 +1,6 @@
 <template>
   <div class="stopwatch">
+    <h1 style="margin-bottom: 5px;">Jumlah Call : {{ count }}</h1>
     <h1>{{ formattedTime }}</h1>
     <button @click="startStop">{{ running ? 'Stop' : 'Start' }}</button>
     <button @click="reset" :disabled="!time">Reset</button>
@@ -20,6 +21,7 @@ const finishSound = new Audio('/assets/selesai.mp3')
 
 const time = ref(0)
 const running = ref(false)
+const count = ref(0)
 let timer = null
 let alertInterval = null
 
@@ -51,6 +53,7 @@ const startStop = (event) => {
       alertInterval = setInterval(() => {
         if (time.value < props.duration * 1000) {
           alertSound.play()
+          count.value = count.value+1
         }
       }, props.call * 1000)
     }
@@ -60,6 +63,7 @@ const startStop = (event) => {
 
 const reset = () => {
   clearInterval(timer)
+  clearInterval(alertInterval)
   time.value = 0
   running.value = false
 }

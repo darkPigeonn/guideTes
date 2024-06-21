@@ -7,12 +7,13 @@
     <form>
         <h3>Guide Test</h3>
 
-        <label for="duration">Durasi</label>
+        <label for="duration">Durasi (Detik)</label>
         <input type="number" placeholder="0" id="duration" v-model="duration">
 
-        <label for="call">call</label>
+        <label for="call">call (Detik)</label>
         <input type="number" placeholder="0" id="call" v-model="call">
 
+      
        
         <Stopwatch :duration="duration" :call="call" />
     </form>
@@ -25,6 +26,7 @@ import Stopwatch from '~/components/Stopwatch1.vue'
 
 const duration = ref(0)
 const call = ref(0)
+
 
 const start = () => {
   alert('mulai')
@@ -39,7 +41,15 @@ const start = () => {
     margin: 0;
     box-sizing: border-box;
 }
+.count {
+  
+  margin: 0 auto;
 
+}
+span{
+  font-size: 20px;
+  font-weight: bold;
+}
 body{
   background: #080710 !important;
   width: 100px;
