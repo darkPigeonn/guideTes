@@ -75,10 +75,7 @@ watch(() => props.duration, (newVal) => {
   }
 })
 
-watch(() => props.call, (newVal) => {
-  // Logic for 'call' prop can be implemented here
-  console.log(`Call prop changed: ${newVal}`)
-})
+
 </script>
 
 <style scoped>
