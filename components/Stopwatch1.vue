@@ -24,60 +24,56 @@ const time = ref(0)
 const running = ref(false)
 const count = ref(0)
 let timer = null
-let alertInterval = null
-let startTime = null
-let lastUpdateTime = null
 let nextAlertTime = null
 
 const formattedTime = computed(() => {
   const minutes = Math.floor(time.value / 60000)
   const seconds = Math.floor((time.value % 60000) / 1000)
   const milliseconds = time.value % 1000
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${String(milliseconds).padStart(3, '0')}`
 })
 
 const startStop = (event) => {
   event.preventDefault()
   if (running.value) {
-    cancelAnimationFrame(timer)
-    clearInterval(alertInterval)
+    clearTimeout(timer)
   } else {
-    startTime = performance.now() - time.value
-    lastUpdateTime = performance.now()
-    timer = requestAnimationFrame(updateTime)
+    const startTime = performance.now() - time.value
+    const tick = () => {
+      const now = performance.now()
+      time.value = now - startTime
+
+      if (time.value >= props.duration * 1000) {
+        clearTimeout(timer)
+        finishSound.play()
+        running.value = false
+        time.value = props.duration * 1000
+      } else {
+        timer = setTimeout(tick, 10)
+      }
+    }
+    tick()
 
     if (props.call > 0) {
-      nextAlertTime = startTime + props.call * 1000 * (count.value + 1)
-      alertInterval = setInterval(() => {
-        if (time.value < props.duration * 1000) {
+      nextAlertTime = time.value + props.call * 1000
+      const alertTick = () => {
+        if (time.value >= nextAlertTime && time.value < props.duration * 1000) {
           alertSound.play()
           count.value++
           nextAlertTime += props.call * 1000
         }
-      }, props.call * 1000)
+        if (time.value < props.duration * 1000) {
+          setTimeout(alertTick, 10)
+        }
+      }
+      alertTick()
     }
   }
   running.value = !running.value
 }
 
-const updateTime = () => {
-  const now = performance.now()
-  time.value = now - startTime
-
-  if (time.value < props.duration * 1000) {
-    timer = requestAnimationFrame(updateTime)
-  } else {
-    cancelAnimationFrame(timer)
-    clearInterval(alertInterval)
-    finishSound.play()
-    running.value = false
-    time.value = props.duration * 1000
-  }
-}
-
 const reset = () => {
-  cancelAnimationFrame(timer)
-  clearInterval(alertInterval)
+  clearTimeout(timer)
   time.value = 0
   running.value = false
   count.value = 0
