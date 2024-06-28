@@ -17,8 +17,8 @@ const props = defineProps({
 })
 
 // Reference to audio file
-const alertSound = new Audio('/assets/pindah.mp3')
-const finishSound = new Audio('/assets/selesai.mp3')
+const alertSound = new Audio('/assets/change.mp3')
+const finishSound = new Audio('/assets/end.mp3')
 
 const time = ref(0)
 const running = ref(false)
