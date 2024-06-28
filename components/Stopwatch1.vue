@@ -1,5 +1,61 @@
 <template>
   <div class="stopwatch">
+    <h1>{{ formattedTime }}</h1>
+    <button @click="startStop">{{  'Start' }}</button>
+    <button @click="stop">{{ "stop" }}</button>
+  </div>
+</template>
+
+<script setup>
+let formattedTime = ref("")
+const running = false
+
+let timer = null;
+let startTime = 0;
+let elapsedTime = 0;
+let isRunning = false;
+
+// Reference to audio file
+const alertSound = new Audio('/assets/pindah.mp3')
+const finishSound = new Audio('/assets/selesai.mp3')
+
+
+const startStop = (event) => {
+  event.preventDefault();
+  
+  setInterval(() => {
+    alertSound.play()
+  }, 3*1000);
+  if (!isRunning) {
+    startTime = Date.now() - elapsedTime;
+    timer = setInterval(update, 10);
+    isRunning = true
+  }
+}
+
+const update = () => {
+  const currentTime = Date.now();
+  elapsedTime = currentTime - startTime;
+  let hours = Math.floor(elapsedTime / (1000 * 60 * 60));
+  let minutes = Math.floor(elapsedTime / (1000 * 60) % 60);
+  let seconds = Math.floor(elapsedTime / 1000 % 60);
+  let milliseconds = Math.floor(elapsedTime % 1000 / 10);
+
+  formattedTime.value =`${hours}:${minutes}:${seconds}`
+
+}
+
+const stop = (event) => {
+  event.preventDefault()
+  if (isRunning) {
+    clearInterval(timer)
+    elapsedTime = Date.now() - startTime
+    isRunning = false
+  }
+}
+</script>
+<!-- <template>
+  <div class="stopwatch">
     <h1 style="margin-bottom: 5px;">Jumlah Call : {{ count }}</h1>
     <h1>{{ formattedTime }}</h1>
     <button @click="startStop">{{ running ? 'Stop' : 'Start' }}</button>
@@ -100,4 +156,4 @@ h1 {
 button {
   margin: 5px;
 }
-</style>
+</style> -->
