@@ -15,6 +15,7 @@ const props = defineProps({
   duration: Number,
   call: Number
 })
+
 // Reference to audio file
 const alertSound = new Audio('/assets/pindah.mp3')
 const finishSound = new Audio('/assets/selesai.mp3')
@@ -24,36 +25,34 @@ const running = ref(false)
 const count = ref(0)
 let timer = null
 let alertInterval = null
+let startTime = null
+let lastUpdateTime = null
+let nextAlertTime = null
 
 const formattedTime = computed(() => {
   const minutes = Math.floor(time.value / 60000)
   const seconds = Math.floor((time.value % 60000) / 1000)
   const milliseconds = time.value % 1000
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${String(milliseconds).padStart(3, '0')}`
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 })
 
 const startStop = (event) => {
-  event.preventDefault();
+  event.preventDefault()
   if (running.value) {
-    clearInterval(timer)
+    cancelAnimationFrame(timer)
     clearInterval(alertInterval)
   } else {
-    timer = setInterval(() => {
-      if (time.value < props.duration * 1000) {
-        time.value += 10
-      } else {
-        clearInterval(timer)
-        clearInterval(alertInterval)
-        finishSound.play()
-        running.value = false
-      }
-    }, 10)
+    startTime = performance.now() - time.value
+    lastUpdateTime = performance.now()
+    timer = requestAnimationFrame(updateTime)
 
     if (props.call > 0) {
+      nextAlertTime = startTime + props.call * 1000 * (count.value + 1)
       alertInterval = setInterval(() => {
         if (time.value < props.duration * 1000) {
           alertSound.play()
-          count.value = count.value+1
+          count.value++
+          nextAlertTime += props.call * 1000
         }
       }, props.call * 1000)
     }
@@ -61,11 +60,27 @@ const startStop = (event) => {
   running.value = !running.value
 }
 
+const updateTime = () => {
+  const now = performance.now()
+  time.value = now - startTime
+
+  if (time.value < props.duration * 1000) {
+    timer = requestAnimationFrame(updateTime)
+  } else {
+    cancelAnimationFrame(timer)
+    clearInterval(alertInterval)
+    finishSound.play()
+    running.value = false
+    time.value = props.duration * 1000
+  }
+}
+
 const reset = () => {
-  clearInterval(timer)
+  cancelAnimationFrame(timer)
   clearInterval(alertInterval)
   time.value = 0
   running.value = false
+  count.value = 0
 }
 
 // Watch for changes in props
@@ -74,8 +89,6 @@ watch(() => props.duration, (newVal) => {
     time.value = newVal * 1000
   }
 })
-
-
 </script>
 
 <style scoped>
@@ -85,8 +98,8 @@ watch(() => props.duration, (newVal) => {
   align-items: center;
   justify-content: center;
 }
-h1{
-  color:white
+h1 {
+  color: white;
 }
 button {
   margin: 5px;
